@@ -2,6 +2,8 @@
  dir.data<-"C:\\Users\\Usuario\\OneDrive\\Edmundo-ITESM\\3.Proyectos\\41. Climate Change and AI\\Data\\Model\\"
  data<-read.csv(paste0(dir.data,"ModelData.csv"))
 
+ #bye
+ 
 ##let's look at the data first,
   summary(data)
 
