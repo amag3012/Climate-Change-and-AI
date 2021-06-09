@@ -57,8 +57,9 @@ predictors3<-subset(predictors3,!(predictors3%in%bad.cors3.1))
 
 #Estimar Modelo 1
 
-
-
+data.model1 <- data[,c(response, predictors1)]
+model1 <- as.formula(paste0(response,"~", paste(predictors1,collapse="x")))
+full.model1 <- lm(model1, data=data.model1)
 
 #Estimar Modelo 2
 
