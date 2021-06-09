@@ -123,7 +123,7 @@ for(i in 2:max.vars)
 {
   pivot<-data.frame(subset.type="bwd",
                     nvars=i,
-                    test.mse=predict.regsubsets(regfit.bwd,model,data.model[test ,],i))
+                   test.mse=predict.regsubsets(regfit.bwd,model,data.model[test ,],i))
   cv.bwd<-rbind(cv.bwd,pivot)
   
 }
