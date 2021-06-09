@@ -2,10 +2,11 @@
  dir.data<-"C:\\Users\\Usuario\\OneDrive\\Edmundo-ITESM\\3.Proyectos\\41. Climate Change and AI\\Data\\Model\\"
  data<-read.csv(paste0(dir.data,"ModelData.csv"))
 
- #bye
+ #hola
  
 ##let's look at the data first,
   summary(data)
+  coef(data())
 
 #remove columns with only NA
  bad.vars<-sapply(data, function(x) {mean(ifelse(is.na(x)==TRUE,1,0))})
