@@ -1,15 +1,16 @@
-
+library(readr)
 dir.data <- "/Users/regisheeran/Desktop/"
-data <- read.csv(paste0(dir.data,"ModelData.csv"))
+data <- read.csv(paste0(dir.data,"ModelData2.csv"))
 
 ##let's look at the data first,
 summary(data)
-
+print(data)
 #remove columns with only NA
 bad.vars<-sapply(data, function(x) {mean(ifelse(is.na(x)==TRUE,1,0))})
 bad.vars<-names(bad.vars[bad.vars>0.03])
-bad.vars<-c(bad.vars,"SE.ENR.PRSC.FM.ZS","SE.PRM.CMPT.ZS","SE.SEC.ENRR","SH.DYN.AIDS.ZS","TT.PRI.MRCH.XD.WD","TX.VAL.TECH.MF.ZS")
+bad.vars<-c(bad.vars,"a_agriculture", " SH.IMM.MEAS", "a_coastal_zone", "a_cross_cutting_area", "a_drm", "a_health", "A_Im_CapBul", "SH.DYN.MORT","MS.MIL.XPND.GD.ZS","SE.ENR.PRSC.FM.ZS","MS.MIL.XPND.GD.ZS","SH.DYN.MORT","SE.PRM.CMPT.ZS","SE.SEC.ENRR","SH.DYN.AIDS.ZS","TT.PRI.MRCH.XD.WD","TX.VAL.TECH.MF.ZS", "a_agriculture", "a_coastal_zone", "a_energy", "A_Im_Finan", "a_tourism", "m_agriculture","m_industries", "a_cross_cutting_area", "a_drm",  "a_education", "a_environment" , "a_health" , "A_Im_CapBul", "a_water",  "m_economy.wide", "m_energy",  "m_lulucf",  "M_PL7",  "migration_and_displacement", "AG.LND.FRST.K2", "AG.SRF.TOTL.K2" )
 
+head(data)
 #let's select a response of interest
 
 #EN.ATM.CO2E.PC=CO2 emissions (metric tons per capita)
@@ -25,13 +26,14 @@ data.model<-data.model[complete.cases(data.model),]
 
 
 model<-as.formula(paste0(response,"~",paste(predictors,collapse="+")))
-full.model <- lm(model, data = data.model)
+full.model <- lm(model, data = data.model, na.action=na.omit)
 summary(full.model)
 
 #now let's select various smaller models
 #install.packages("leaps")
 
-#load library
+
+
 library(leaps)
 
 
@@ -51,12 +53,6 @@ regfit.fwd <- regsubsets (model, data.model[train,], nvmax =max.vars,really.big 
 
 #let's do backard stepwise selection
 regfit.bwd <- regsubsets (model, data.model[train,], nvmax =max.vars,really.big = T, method = "backward") #you can choose how large you want the search to be
-
-
-#explore different models
-msize<-8
-coef(regfit.best ,msize)
-
 
 #now how do we select which model is best
 
@@ -123,7 +119,7 @@ for(i in 2:max.vars)
 {
   pivot<-data.frame(subset.type="bwd",
                     nvars=i,
-                   test.mse=predict.regsubsets(regfit.bwd,model,data.model[test ,],i))
+                    test.mse=predict.regsubsets(regfit.bwd,model,data.model[test ,],i))
   cv.bwd<-rbind(cv.bwd,pivot)
   
 }
