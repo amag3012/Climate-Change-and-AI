@@ -85,12 +85,15 @@ predictors<-subset(colnames(data), colnames(data)%in%c("education", "social_deve
 predictors
 model<-as.formula(paste(response,"~",paste(predictors,collapse="+")))
 data.model<-data[,c(response,predictors)]
-#clean the data database
+
+#comienzan errores
 data.model<-data.model[complete.cases(data.model),]
 
+as.numeric("EN.ATM.CO2E.PC","education", "social_development", "energy","Bx.klt", "SP.POP", "Urban", "Transport", "Envi", "waste", "ny.gdp","ny.zg", na.action=na.omit)
+call(data.model)
 model
 plot(model)
-as.numeric("EN.ATM.CO2E.PC","education", "social_development", "energy","Bx.klt", "SP.POP", "Urban", "Transport", "Envi", "waste", "ny.gdp","ny.zg", na.action=na.omit)
+
 full.model <- glm(model, data = data.model, na.action=na.omit)
 
 full.model
