@@ -32,20 +32,25 @@ View(data)
   data <- data[complete.cases(data),]
   dim(data)
   View(data)
-  
-  
 
 # now let's partition the response of interest into two groups
 #focus on the high emissions per capita nations
- threshold<-as.numeric(quantile(data[,response],0.5,na.rm=TRUE))
- data$response.binary<-as.factor(ifelse(data[,response]>threshold,"High","Low"))
+
+  # PARA EL CONJUNTO DE ENTRENAMIENTO (31 PAISES)
+threshold<-as.numeric(quantile(data[,response],0.5,na.rm=TRUE))
+data$response.binary<-as.factor(ifelse(data[,response]>threshold,"High","Low"))
 summary(data$response.binary)
 # quantile(data[,response],0.5,na.rm=TRUE)
 
-summary(data[,response])
-plot(density(data[,response]))
+# PARA EL CONJUNTO DE PRUEBA (150 PAISES)
+threshold.2 <-as.numeric(quantile(data.test[,response],0.5,na.rm=TRUE))
+data.test$response.binary<-as.factor(ifelse(data.test[,response]>threshold,"High","Low"))
+summary(data.test$response.binary)
 
+# summary(data[,response])
+# plot(density(data[,response]))
 
+# PARA EL CONJUNTO DE ENTRENAMIENTO
 # remove NA values in the RESPONSE
  data<-subset(data,is.na(response.binary)==FALSE)
 dim(data)
@@ -57,6 +62,21 @@ dim(data)
  data.model<-data.model[complete.cases(data.model),]
  summary(data.model)
  dim(data.model)
+ 
+ # PARA EL CONJUNTO DE PRUEBA
+ data.model.2 <- data.test[,c("response.binary",predictors)]
+ data.model.2 <- data.model.2[complete.cases(data.model.2),]
+ summary(data.model.2)
+ dim(data.model.2)
+ summary(data.model.2$response.binary)
+
+ data.test<-subset(data.test,is.na(response.binary)==FALSE)
+ dim(data.test)
+ 
+ data.test <- data.test[complete.cases(data.test),]
+ summary(data.test)
+ dim(data.test)
+
 
 # now we have a clean data set
 
@@ -71,109 +91,85 @@ dim(data)
 # install.packages("tree")
  library(tree)
  set.seed (55555)
- train<-sample (1: nrow(data.model), 9) # para hacer el conj de entrenam agarro una muestra aleatoria de 100 datos de entre los renglones 1 y 180
- data.model.test<-data.model[-train ,] # para el de prueba se usan los 80 registros que no se usaron para el conjunto de entrenamiento
- response.binary.test<-data.model$response.binary[-train ] # vemos los valores que toman los 80 datos de prueba en la columna "response.binary"
  tree.model <- tree(model,data.model) # se usan el modelo, la base de datos y el subconjunto
- tree.model.pred<-predict(tree.model ,data.model.test ,type ="class") # probamos qué tan buen modelo es dándole el árbol estimado, el conjunto de prueba y type
- table(tree.model.pred ,response.binary.test)
+ tree.model
+ response.binary.model<-data.model$response.binary # vemos los valores que toman los 80 datos de prueba en la columna "response.binary"
+ 
+ tree.model.pred<-predict(tree.model ,data.model,type ="class") # probamos qué tan buen modelo es dándole el árbol estimado, el conjunto de prueba y type
+ 
+ #response.binary.test<-data.model.2$response.binary # vemos los valores que toman los 80 datos de prueba en la columna "response.binary"
+ #tree.model <- tree(model,data.model.2) # se usan el modelo, la base de datos y el subconjunto
+ #tree.model.pred<-predict(tree.model ,data.test ,type ="class") # probamos qué tan buen modelo es dándole el árbol estimado, el conjunto de prueba y type
+ 
+ 
+ table(tree.model.pred ,response.binary.model)
  plot(tree.model)
- text(tree.model  ,pretty =0)
+ text(tree.model,pretty =0)
 # So this tree has an error rate of (5+4)/80
  
+ response.binary.test<-data.model.2$response.binary
+ response.binary.test
+ tree.model.pred
+ # usar sample para que me de 31 observaciones de las 150
  
- data.test <- data.test[complete.cases(data.test),]
- summary(data.test)
- dim(data.test)
+ test <- sample(response.binary.test, 31, replace = FALSE)
  
- train<- data # para hacer el conj de entrenam agarro una muestra aleatoria de 100 datos de entre los renglones 1 y 180
- data.model.test<-data.model.2[-train ,] # para el de prueba se usan los 80 registros que no se usaron para el conjunto de entrenamiento
- response.binary.test<-data.model.2$response.binary # vemos los valores que toman los 80 datos de prueba en la columna "response.binary"
- tree.model <- tree(model,data.model.2) # se usan el modelo, la base de datos y el subconjunto
- tree.model.pred<-predict(tree.model ,data.test ,type ="class") # probamos qué tan buen modelo es dándole el árbol estimado, el conjunto de prueba y type
- table(tree.model.pred ,response.binary.test)
- plot(tree.model)
- text(tree.model  ,pretty =0)
+# MATRIZ DE CONFUSIÓN PREDICCIÓN Y PRUEBA
+  table(tree.model.pred, test)
  
  
  # model test ----------
 
- 
- threshold.2 <-as.numeric(quantile(data.test[,response],0.5,na.rm=TRUE))
- data.test$response.binary<-as.factor(ifelse(data.test[,response]>threshold,"High","Low"))
- summary(data.test$response.binary)
- 
- data.model.2 <- data.test[,c("response.binary",predictors)]
- data.model.2 <- data.model.2[complete.cases(data.model.2),]
- summary(data.model.2)
- dim(data.model.2)
- summary(data.model.2$response.binary)
- dim(tree.model.pred2)
+  threshold.3 <-as.numeric(quantile(data.test[,response],0.5,na.rm=TRUE))
+  data.test$response.binary<-as.factor(ifelse(data.test[,response]>threshold,"High","Low"))
+  summary(data.test$response.binary)
+  
+  data.test<-subset(data.test,is.na(response.binary)==FALSE)
+  dim(data.test)
+  #now look at how many high emission cases we have
+  summary(data.test$response.binary)
+  
+  #Now before we start modeling, we subset the data to be used in the model to only complete cases
+  data.model.3<-data.test[,c("response.binary",predictors)]
+  data.model.3<-data.model.3[complete.cases(data.model.3),]
+  summary(data.model.3)
+  dim(data.model.3)
+  
+
+ summary(data.model.3$response.binary)
 
 
  set.seed (55555)
- tree.model.2 <- tree(model,data.model.2) # se usan el modelo, la base de datos y el subconjunto
- tree.model.pred2 <-predict(tree.model.2 ,data.model.2 ,type ="class") # probamos qué tan buen modelo es dándole el árbol estimado, el conjunto de prueba y type
- table(tree.model.pred2 ,tree.model.2)
- plot(tree.model)
- text(tree.model  ,pretty =0)
+ tree.model.3 <- tree(model,data.model.3) # se usan el modelo, la base de datos y el subconjunto
+ tree.model.pred3 <-predict(tree.model.3 ,data.model.3 ,type ="class") # probamos qué tan buen modelo es dándole el árbol estimado, el conjunto de prueba y type
+ table(tree.model.pred3 ,data.model.3$response.binary)
+ plot(tree.model.3)
+ text(tree.model.3  ,pretty =0)
+
+ #RANDOM FOREST
+ library(randomForest)
+ rf.data.model.3 <- randomForest(model,
+                               data=data.model.3,
+                               mtry=round(length(predictors)^0.5),
+                               importance =TRUE
+ )
+ rf.data.model.3
  
+ #base on many different trees, which are the most important drivers
+ importance (rf.data.model.3)
+ varImpPlot (rf.data.model.3 )
  
  
  # ---------------------
 
-#We can use tree prunning to get a better classification tree
- set.seed (55555)
- library(tree)
- cv.data.model<-cv.tree(tree.model ,FUN=prune.misclass)
- cv.data.model
-
-# dev corresponds to the cross-validation error rate in this instance, which is then the best tree?
-
-#we can use prune.misclass() to obtain the best tree
-  prune.tree.model <- prune.misclass (tree.model ,best =4)
-  plot(prune.tree.model )
-  text(prune.tree.model ,pretty =0)
-
-#how good is the prune tree ? proceso de validación
-  tree.pred<-predict (prune.tree.model , data.model.test ,type ="class")
-  table(tree.pred ,response.binary.test)
-
-# So this tree has an error rate of (6+3)/80
-
-
-#========================
-# Approach 2: Regression tree
-#========================
-
-#single best
- library (MASS)
- set.seed (55555)
- train <- sample (1: nrow(data.model), 100)
- Rtree.data.model <-tree(model,data.model ,subset =train)
- summary (Rtree.data.model)
- plot(Rtree.data.model  )
- text(Rtree.data.model  ,pretty =0)
-
-#prune tree
- cv.Rtree.data.model <- cv.tree(Rtree.data.model )
- cv.Rtree.data.model
-
-#which is the best tree?
-
- prune.Rtree.data.model <- prune.misclass(Rtree.data.model  ,best =3)
- plot(prune.Rtree.data.model )
- text(prune.Rtree.data.model ,pretty =0)
 
  #========================
  # Approach 3: Random Forest
  #========================
 #install.packages("randomForest")
  library(randomForest)
- set.seed (55555)
  rf.data.model <- randomForest(model,
-                              data=data.model ,
-                              subset =train ,
+                              data=data.model,
                               mtry=round(length(predictors)^0.5),
                               importance =TRUE
                               )
