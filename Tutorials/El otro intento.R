@@ -2,31 +2,30 @@ library(readr)
 dir.data <- "/Users/regisheeran/Desktop/"
 data <- read.csv(paste0(dir.data,"ModelData2.csv"))
 
-##let's look at the data first,
+#let's look at the data first,
 summary(data)
-print(data)
+
 #remove columns with only NA
-bad.vars<-sapply(data, function(x) {mean(ifelse(is.na(x)==TRUE,1,0))})
+bad.vars<-sapply(dataO, function(x) {mean(ifelse(is.na(x)==TRUE,1,0))})
 bad.vars<-names(bad.vars[bad.vars>0.03])
-bad.vars<-c(bad.vars,"a_agriculture", " SH.IMM.MEAS", "a_coastal_zone", "a_cross_cutting_area", "a_drm", "a_health", "A_Im_CapBul", "SH.DYN.MORT","MS.MIL.XPND.GD.ZS","SE.ENR.PRSC.FM.ZS","MS.MIL.XPND.GD.ZS","SH.DYN.MORT","SE.PRM.CMPT.ZS","SE.SEC.ENRR","SH.DYN.AIDS.ZS","TT.PRI.MRCH.XD.WD","TX.VAL.TECH.MF.ZS", "a_agriculture", "a_coastal_zone", "a_energy", "A_Im_Finan", "a_tourism", "m_agriculture","m_industries", "a_cross_cutting_area", "a_drm",  "a_education", "a_environment" , "a_health" , "A_Im_CapBul", "a_water",  "m_economy.wide", "m_energy",  "m_lulucf",  "M_PL7",  "migration_and_displacement", "AG.LND.FRST.K2", "AG.SRF.TOTL.K2" )
+bad.vars<-c(bad.vars,"SE.ENR.PRSC.FM.ZS","SE.PRM.CMPT.ZS","SE.SEC.ENRR","SH.DYN.AIDS.ZS","TT.PRI.MRCH.XD.WD","TX.VAL.TECH.MF.ZS")
 
-head(data)
 #let's select a response of interest
-
 #EN.ATM.CO2E.PC=CO2 emissions (metric tons per capita)
-ids<-c("iso_code3","country")
 response<-"EN.ATM.CO2E.PC"
-predictors<-subset(colnames(data),!(colnames(data)%in%c(ids,response,bad.vars)))
 
+predictors<-subset(colnames(dataO), colnames(dataO)%in%c("BX.KLT.DINV.CD.WD", "SP.POP.TOT2L", "a_energy", "a_urban", "a_transport", "a_social_development", "a_education", "a_environment", "m_waste", "NY.GDP.MKTP.CD", "NY.GDP.MKTP.KD.ZG", "SP.POP.GROW"))
 #estimate full model
 data.model<-data[,c(response,predictors)]
 #clean the data database
 data.model<-data.model[complete.cases(data.model),]
 
-
-
 model<-as.formula(paste0(response,"~",paste(predictors,collapse="+")))
+
+model
 full.model <- lm(model, data = data.model, na.action=na.omit)
+
+full.model
 summary(full.model)
 
 #now let's select various smaller models
@@ -129,5 +128,5 @@ subset(cv.bwd,test.mse==min(test.mse))
 #actual model
 coef(regfit.bwd ,subset(cv.bwd,test.mse==min(test.mse))$nvars)
 
-#
+
 
