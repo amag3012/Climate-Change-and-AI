@@ -6,26 +6,85 @@ data <- read.csv(paste0(dir.data,"ModelData2.csv"))
 summary(data)
 
 #remove columns with only NA
-bad.vars<-sapply(dataO, function(x) {mean(ifelse(is.na(x)==TRUE,1,0))})
+bad.vars<-sapply(data, function(x) {mean(ifelse(is.na(x)==TRUE,1,0))})
 bad.vars<-names(bad.vars[bad.vars>0.03])
 bad.vars<-c(bad.vars,"SE.ENR.PRSC.FM.ZS","SE.PRM.CMPT.ZS","SE.SEC.ENRR","SH.DYN.AIDS.ZS","TT.PRI.MRCH.XD.WD","TX.VAL.TECH.MF.ZS")
 
 #let's select a response of interest
 #EN.ATM.CO2E.PC=CO2 emissions (metric tons per capita)
-response<-"EN.ATM.CO2E.PC"
 
-predictors<-subset(colnames(dataO), colnames(dataO)%in%c("BX.KLT.DINV.CD.WD", "SP.POP.TOT2L", "a_energy", "a_urban", "a_transport", "a_social_development", "a_education", "a_environment", "m_waste", "NY.GDP.MKTP.CD", "NY.GDP.MKTP.KD.ZG", "SP.POP.GROW"))
+
+predictors<-subset(colnames(data), colnames(data)%in%c("BX.KLT.DINV.CD.WD", "SP.POP.TOT2L", "a_energy", "a_urban", "a_transport", "a_social_development", "a_education", "a_environment", "m_waste", "NY.GDP.MKTP.CD", "NY.GDP.MKTP.KD.ZG", "SP.POP.GROW"))
 #estimate full model
 data.model<-data[,c(response,predictors)]
 #clean the data database
 data.model<-data.model[complete.cases(data.model),]
+plot(density(data.model$EN.ATM.CO2E.PC))
 
-model<-as.formula(paste0(response,"~",paste(predictors,collapse="+")))
+#education
+plot(density(data.model$a_education))#dummy menor que 1 
+education <- log(data.model$a_education)
+plot(density(education)) #comprobar que sea campana
 
+#energy
+plot(density(data.model$a_energy)) #hacerla log (reconvertir 0s) o dummy de 0 
+energy <- log(data.model$a_energy) #NOFUNCIONö
+plot(density(energy))
+
+#social_deevelopment
+plot(density(data.model$a_social_development)) 
+social_development <-  (data.model$a_social_development) #NoFuncionó
+plot(social_development)
+
+#Bx.klt
+plot(density(data.model$BX.KLT.DINV.CD.WD))
+Bx.klt <- (data.model$BX.KLT.DINV.CD.WD) #NoFuncionó
+plot(Bx.klt)
+
+#SP.POP
+plot(density(data.model$SP.POP.GROW))
+SP.POP <-(data.model$SP.POP.GROW) #NoFuncionó
+plot(SP.POP)
+
+
+#Urban
+plot(density(data.model$a_urban))
+Urban <- (data.model$a_urban-mean(data.model$a_urban))/sd(data.model$a_urban)
+plot(Urban)
+
+#Transport
+plot(density(data.model$a_transport))
+Transport <- (data.model$a_transport) #NoFuncionó
+plot(Transport)
+
+#Envi
+plot(density(data.model$a_environment))
+Envi <- log(data.model$a_environment) #NoFuncionó 
+plot(Envi)
+
+#waste
+plot(density(data.model$m_waste))
+waste <- log(data.model$m_waste) #nofuncionó
+plot(waste)
+
+#ny.gdp
+plot(density(data.model$NY.GDP.MKTP.CD))
+ny.gdp <- log(data.model$NY.GDP.MKTP.CD) #nop
+plot(ny.gdp)
+
+#ny.zg
+plot(density(data.model$NY.GDP.MKTP.KD.ZG))
+ny.zg <- (data.model$NY.GDP.MKTP.KD.ZG) #nop
+plot(ny.zg)
+
+
+predictors<-subset(colnames(data), colnames(data)%in%c("education", "social_development", "eneregy", "Bx.klt", "SP.POP", "Urban", "Transport", "Envi", "waste", "ny.gdp", "ny.zg" ))
+model<-as.formula(paste0("EN.ATM.CO2E.PC","~",paste(predictors,collapse="+")))
 model
 full.model <- lm(model, data = data.model, na.action=na.omit)
 
 full.model
+plot(full.model)
 summary(full.model)
 
 #now let's select various smaller models
