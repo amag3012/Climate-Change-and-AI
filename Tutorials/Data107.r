@@ -81,6 +81,21 @@ dim(data)
  text(tree.model  ,pretty =0)
 # So this tree has an error rate of (5+4)/80
  
+ 
+ data.test <- data.test[complete.cases(data.test),]
+ summary(data.test)
+ dim(data.test)
+ 
+ train<- data # para hacer el conj de entrenam agarro una muestra aleatoria de 100 datos de entre los renglones 1 y 180
+ data.model.test<-data.model.2[-train ,] # para el de prueba se usan los 80 registros que no se usaron para el conjunto de entrenamiento
+ response.binary.test<-data.model.2$response.binary # vemos los valores que toman los 80 datos de prueba en la columna "response.binary"
+ tree.model <- tree(model,data.model.2) # se usan el modelo, la base de datos y el subconjunto
+ tree.model.pred<-predict(tree.model ,data.test ,type ="class") # probamos qué tan buen modelo es dándole el árbol estimado, el conjunto de prueba y type
+ table(tree.model.pred ,response.binary.test)
+ plot(tree.model)
+ text(tree.model  ,pretty =0)
+ 
+ 
  # model test ----------
 
  
@@ -102,6 +117,8 @@ dim(data)
  table(tree.model.pred2 ,tree.model.2)
  plot(tree.model)
  text(tree.model  ,pretty =0)
+ 
+ 
  
  # ---------------------
 
