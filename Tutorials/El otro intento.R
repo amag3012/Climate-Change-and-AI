@@ -13,7 +13,8 @@ bad.vars<-c(bad.vars,"SE.ENR.PRSC.FM.ZS","SE.PRM.CMPT.ZS","SE.SEC.ENRR","SH.DYN.
 
 #let's select a response of interest
 #EN.ATM.CO2E.PC=CO2 emissions (metric tons per capita)
-response<-"EN.ATM.CO2E.PC"
+response<-("EN.ATM.CO2E.PC")
+
 
 predictors<-subset(colnames(data), colnames(data)%in%c("BX.KLT.DINV.CD.WD", "SP.POP.TOT2L", "a_energy", "a_urban", "a_transport", "a_social_development", "a_education", "a_environment", "m_waste", "NY.GDP.MKTP.CD", "NY.GDP.MKTP.KD.ZG", "SP.POP.GROW"))
 #estimate full model
@@ -78,18 +79,18 @@ plot(density(data.model$NY.GDP.MKTP.KD.ZG))
 ny.zg<- (data.model$NY.GDP.MKTP.KD.ZG) #nop
 plot(ny.zg)
 
+colnames(data) <- c("EN.ATM.CO2E.PC","education", "social_development", "energy","Bx.klt", "SP.POP", "Urban", "Transport", "Envi", "waste", "ny.gdp","ny.zg")
+predictors<-subset(colnames(data), colnames(data)%in%c("education", "social_development", "energy","Bx.klt", "SP.POP", "Urban", "Transport", "Envi", "waste", "ny.gdp","ny.zg"))
 
-predictors<-subset(colnames(data), colnames(data)%in%c("education","social_development","energy","Bx.klt","SP.POP","Urban","Transport","Envi","waste","ny.gdp","ny.zg"))
-model<-as.formula(paste0(response,"~",paste(predictors,collapse="+")))
+predictors
+model<-as.formula(paste(response,"~",paste(predictors,collapse="+")))
 
-?str2lang(x)
+data.model<-data[,c(response,predictors)]
+#clean the data database
+data.model<-data.model[complete.cases(data.model),]
+
 model
 
-plot(model)
-
-
-
-model
 full.model <- lm(model, data = data.model, na.action=na.omit)
 
 
