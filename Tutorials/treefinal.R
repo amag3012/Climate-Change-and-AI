@@ -16,7 +16,7 @@
   #  predictors<-subset(colnames(data),!(colnames(data)%in%c(ids,response,bad.vars)))
   predictors<-subset(colnames(dataO), colnames(dataO)%in%c("BX.KLT.DINV.CD.WD", "SP.POP.TOT2L", "a_energy", "a_urban", "a_transport", "a_social_development", "a_education", "a_environment", "m_waste", "NY.GDP.MKTP.CD", "NY.GDP.MKTP.KD.ZG", "SP.POP.GROW"))
 
-# formar el conjunto de entrenamiento con países en vías de desarrollo 
+  # formar el conjunto de entrenamiento con países en vías de desarrollo 
 data <- dataO[c(4, 150, 6, 8, 19, 25, 18, 24, 26, 32, 38, 5, 138, 78, 77, 88, 95, 124, 112, 108, 118, 127, 134, 139, 136, 148, 167, 192, 171, 176, 178, 183, 33),c(predictors,response)] 
 
 # formar el conjunto de prueba con el resto de los países
@@ -34,6 +34,7 @@ predictors
   data <- data[complete.cases(data),] # quitamos las observaciones con NAs
   dim(data) # nos quedan 31 observaciones 
 
+  View(data)
   # PARA EL CONJUNTO DE ENTRENAMIENTO (31 PAISES) creamos una variable binaria que nos diga si un país tiene emisiones altas o bajas considerando un límite del 50% de los datos
   # summary(data[,response])
   # plot(density(data[,response]))
@@ -58,6 +59,7 @@ dim(data)
 #Now before we start modeling, we subset the data to be used in the model to only complete cases
  data.model<-data[,c("response.binary",predictors)]
  data.model<-data.model[complete.cases(data.model),]
+ names(data.model)
  summary(data.model)
  dim(data.model)
  
@@ -91,6 +93,7 @@ dim(data)
  tree.model.pred<-predict(tree.model ,data.model,type ="class") 
  
  table(tree.model.pred ,response.binary.model)
+ 
  plot(tree.model)
  text(tree.model,pretty =0)
 # So this tree has an error rate of (3+3)/31 = 0.194
@@ -119,7 +122,7 @@ dim(data)
  
 # MATRIZ DE CONFUSIÓN PREDICCIÓN Y PRUEBA
   table(tree.model.pred, test)
-# el MSE de prueba es (4+12)/31 = 0.516
+# el MSE de prueba es (3+11)/31 = 0.45
   
 # ---------------------------------------------------------------------------------
   
@@ -174,9 +177,10 @@ dim(data)
  
  response.binary.test.3 <-data.model.2$response.binary
  response.binary.test.3
- tree.model.pred.3
  
  tree.model.pred.3<-predict (prune.tree.model.3 , data.model.2 ,type ="class")
+ tree.model.pred.3
+ 
  table(tree.model.pred.3 ,response.binary.test.3)
  
  # no cortamos el árbol porque al usar cualquier número de nodos menor a 12, se obtiene un error de clasificación mayor, no menor
